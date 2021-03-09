@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"strings"
+	"net/http"
+	"crypto/tls"
 
 	"github.com/logrusorgru/aurora/v3"
 	log "github.com/projectdiscovery/gologger"
@@ -46,7 +48,11 @@ func main() {
 			if err != nil {
 				log.Error().Msg(err.Error())
 			}
-
+			// fix: x509: cannot validate certificate for *IP Address* because it doesn't contain any IP SANs
+			tr := &http.Transport{
+			    TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+			client := &http.Client{Transport:tr}
 			resp, err := client.Do(req)
 			if err != nil {
 				log.Error().Msgf("%s\n", err.Error())
